@@ -1,0 +1,107 @@
+ private void CreateTCPClient()
+        {
+            var host = IPAddress.Parse(objPOS.IP);
+            var port = objPOS.Port;
+            var bootstrapper = new ClientBootstrap().SetTransport(TransportType.Tcp).Build();
+            iConnect = bootstrapper.NewConnection(Node.Empty(), NodeBuilder.BuildNode().Host(host).WithPort(port));
+            iConnect.OnConnection += (address, connection) =>
+            {
+                AddText("Connected with host.");
+                connection.BeginReceive(ReceivedCallback);
+            };
+            LoopConnect();
+            iConnect.OnDisconnection += OnDisconnection;
+        }
+
+        /// <summary>
+        /// Ngắt kết nối TCP tới POS khi không còn mở form
+        /// </summary>
+        public void Disconnection()
+        {
+            iConnect.Close();
+            voie.bStop = true;
+        }
+        private void OnDisconnection(Helios.HeliosException address, IConnection reason)
+        {
+            AddText("Disconnected.");
+            //if (!chbMute.Checked && ("00,10,20,30,40,50").Contains(DateTime.Now.ToString("ss")))
+            //{
+            ChangerColor(Color.Yellow);
+            if (!chbMute.Checked)
+                voie.AddPlayList(new List<string>() { "mất_kết_nối_với", tbPosName.Text.ToLower() });
+            //}
+            CreateTCPClient();
+        }
+        private void ReceivedCallback(NetworkData data, IConnection responseChannel)
+        {
+            string sReceive = Encoding.UTF8.GetString(data.Buffer);
+            if (sReceive == "Unrecognized command")
+                return;
+            JObject obj = JObject.Parse(sReceive);
+            var objInportMess = obj.ToObject<InportMess>();
+            switch (objInportMess.Command)
+            {
+                case "process":
+                    sErrorCode = "";
+                    ShowInfo(objInportMess);
+                    AddText("PRINT: " + objInportMess.Infor.CNTRNo + " TRUCKNO: " + objInportMess.Infor.TruckNo + " POS: " + objInportMess.Infor.PosName);
+                    break;
+                default:
+                    sErrorCode = objInportMess.Command;
+                    ShowInfo(objInportMess);
+                    AddText("Error: "+ sErrorCode +" CNTRN0: " + objInportMess.Infor.CNTRNo + " TRUCKNO: " + objInportMess.Infor.TruckNo + " POS: " + objInportMess.Infor.PosName);
+
+                    if (!chbMute.Checked)
+                        voie.AddPlayList(new List<string>() { "đang_có_lỗi_tại_" + tbPosName.Text.ToLower() });
+                    if (objInportMess.Voice != null && !chbMute.Checked)
+                        voie.AddPlayList(objInportMess.Voice);
+                    break;
+            }
+            if (objInportMess.Voice != null)
+                AddText(string.Join(",", objInportMess.Voice.ToArray()));
+        }
+
+        /// <summary>
+        /// Gửi lệnh GET dữ liệu
+        /// </summary>
+        private void LoopWrite()
+        {
+            var command = Encoding.UTF8.GetBytes("gettime");
+            var fiber = FiberFactory.CreateFiber(1);
+            while (iConnect.IsOpen() && bConnectPOS)
+            {
+                //fiber.Add(dedicatedMethod);
+                Thread.Sleep(1000);
+                iConnect.Send(new NetworkData { Buffer = command, Length = command.Length });
+            }
+            AddText("Connection closed.");
+            fiber.GracefulShutdown(TimeSpan.FromSeconds(1));
+        }
+
+        /// <summary>
+        /// Tự động kết nối lại khi mất kết nối
+        /// </summary>
+        private void LoopConnect()
+        {
+            //int iRun = 0;
+            while (!iConnect.IsOpen() && bConnectPOS)
+            {
+                try
+                {
+                    //iRun++;
+                    iConnect.Open();
+                    //if (iRun > 10)
+                    //    iRun = 0;
+                    //if (iRun == 10)
+                    //    voie.AddPlayList(new List<string>() { "đang_kết_nối_với", tbPosName.Text.ToLower() });
+                }
+                catch (SocketException ex)
+                {
+                }
+                AddText("Connectting...");
+            }
+            AddText("Connected");
+            ChangerColor(Color.GreenYellow);
+            if (!chbMute.Checked)
+                voie.AddPlayList(new List<string>() { "đã_kết_nối_với", tbPosName.Text.ToLower() });
+        }

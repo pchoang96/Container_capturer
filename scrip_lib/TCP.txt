@@ -1,0 +1,122 @@
+  private List<IConnection> listConnectTCP = new List<IConnection>();
+        /// <summary>
+        /// Khởi tạo TCP server - mỗi POS có trạng thái RUN = true thì khởi tạo server đó
+        /// </summary>
+        private void CreateTCPServer(string ip, int port, int POSNum)
+        {
+            try
+            {
+                var host = IPAddress.Parse(ip);
+                AddCommand(string.Format("Starting server on {0}:{1}", host, port));
+                var executor = new TryCatchExecutor(exception => AddCommand(string.Format("Unhandled exception: {0}", exception)));
+                var bootstrapper = new ServerBootstrap().WorkerThreads(2).Executor(executor).SetTransport(TransportType.Tcp).Build();
+                var server = bootstrapper.NewReactor(NodeBuilder.BuildNode().Host(host).WithPort(port));
+                server.OnConnection += (address, connection) =>
+                {
+                    Invoke((MethodInvoker)delegate
+                    {
+                        AddCommand(string.Format("Connected: " + connection.RemoteHost));
+                    });
+                    connection.BeginReceive(ReceiveTCP);
+                    listConnectTCP.Add(connection);
+                };
+                server.OnDisconnection += (reason, connection) =>
+                Invoke((MethodInvoker)delegate
+                {
+                    AddCommand(string.Format("Disconnected: {0}; Reason: {1}", connection.RemoteHost, reason.Type));
+                    listConnectTCP.Remove(connection);
+                });
+                server.Start();
+
+                AddCommand(string.Format("Started server on {0}:{1}", host, port));
+            }
+            catch (Exception ex)
+            {
+                AddCommand(string.Format("Start server error!"));
+            }
+        }
+        public void ReceiveTCP(NetworkData data, IConnection channel)
+        {
+            try
+            {
+                var sReceive = Encoding.UTF8.GetString(data.Buffer);
+                if (sReceive == "Unrecognized command")
+                    return;
+                string sData = Encoding.UTF8.GetString(data.Buffer);
+                JObject obj = JObject.Parse(sData);
+                var objInportMess = obj.ToObject<InportMess>();
+                switch (objInportMess.Command)
+                {
+                    case "gettime":
+                        string sTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                        var time = Encoding.UTF8.GetBytes(sTime);
+                        channel.Send(new NetworkData { Buffer = time, Length = time.Length, RemoteHost = channel.RemoteHost });
+                        AddCommand(string.Format("Sent time to {0}", sTime));
+                        break;
+                    case "getinfo":
+                        break;
+                    case "reprint":
+                        AddCommand(string.Format("Received: {0}", sReceive));
+                        ShowNotify("Điều độ đã gửi lệnh RE-PRINT: " + objInportMess.Infor.CNTRNo);
+                        voice.AddPlayList(new List<string>() { "Đang_in_lại_phiếu_từ_điều_độ" });
+                        listPrint.Add(objInportMess);
+                        break;
+                    case "testprint":
+                        var objPOS = dbeYD.POS.Where(p => p.PosName == objInportMess.Infor.PosName).FirstOrDefault();
+                        if (objPOS != null)
+                        {
+                            reportInport = new Report();
+                            reportInport.Load(sReportFile);
+                            reportInport.Prepare();
+                            reportInport.PrintSettings.Printer = objInportMess.Infor.PrintName;
+                            reportInport.PrintSettings.ShowDialog = false;
+                            reportInport.Print();
+                            ShowNotify("Kết nối hệ thống thành công đã gửi lệnh in!");
+                            voice.AddPlayList(new List<string>() { "Kết_nối_hệ_thống_thành_công,_đã_gửi_lệnh_in" });
+                        }
+                        else
+                        {
+                            ShowNotify("Lỗi kết nối tới server!");
+                            voice.AddPlayList(new List<string>() { "lỗi_kết_nối_tới_server,_hãy_kiểm_tra_mạng_hoặc_cấu_hình" });
+                        }
+                        break;
+                    default:
+                        AddCommand(string.Format("Invalid command: {0}", sReceive));
+                        var invalid = Encoding.UTF8.GetBytes("Unrecognized command");
+                        channel.Send(new NetworkData
+                        {
+                            Buffer = invalid,
+                            Length = invalid.Length,
+                            RemoteHost = channel.RemoteHost
+                        });
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Gửi thông tin từ máy POS về Client
+        /// </summary>
+        private void SendTCPInfoMess(string command, InportMess obj, List<string> voice)
+        {
+            try
+            {
+                obj.Command = command;
+                obj.Voice = voice;
+                string sMess = JsonConvert.SerializeObject(obj);
+                byte[] bMess = Encoding.UTF8.GetBytes(sMess);
+
+                foreach (var item in listConnectTCP)
+                {
+                    var fiber = FiberFactory.CreateFiber(1);
+                    item.Send(new NetworkData { Buffer = bMess, Length = bMess.Length });
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+        }
