@@ -173,7 +173,6 @@ namespace container_capturer
 
             if (textBoxImgLink2.Text == "")
             {
-
                 //Cho phép nhập dữ liệu vào hàng 1 (nếu hàng 2 trống)
                 textBoxImgLink1.ReadOnly = false;
                 textBoxImgLink2.ReadOnly = true;
