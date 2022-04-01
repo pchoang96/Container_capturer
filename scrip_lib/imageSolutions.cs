@@ -122,6 +122,15 @@ namespace container_capturer.scrip_lib
         /* =================================== Public variables =================================== */
         /* =================================== Contructors =================================== */
         /* =================================== Private functions =================================== */
+
+        /// <summary>
+        /// Hàm được gọi ra khi có hoạt động của chuột
+        /// </summary>
+        /// <param name="_event"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="flags"></param>
+        /// <param name="userData"></param>
         private static void Mice(MouseEventTypes _event, int x, int y, MouseEventFlags flags, IntPtr userData)
         {
             switch (_event)
@@ -141,6 +150,16 @@ namespace container_capturer.scrip_lib
                     break;
             }
         }
+
+        /// <summary>
+        /// Hàm vẽ hình chữ nhật với hai điểm
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="xx"></param>
+        /// <param name="yy"></param>
+        /// <returns></returns>
         private static Mat drawRectangle(Mat img, int x, int y, int xx, int yy)
         {
             int thickness = 2;
@@ -160,6 +179,16 @@ namespace container_capturer.scrip_lib
             return temp_img;
         }
 
+        /// <summary>
+        /// Cắt ảnh dựa vào hai điểm và tỉ lệ
+        /// </summary>
+        /// <param name="img"></param>  ảnh đầu vào
+        /// <param name="x"></param>    tọa độ điểm
+        /// <param name="y"></param>    tọa độ điểm
+        /// <param name="xx"></param>   tọa độ điểm
+        /// <param name="yy"></param>   tọa độ điểm
+        /// <param name="scale"></param>tỉ lệ (resize ảnh sau khi cắt)
+        /// <returns></returns> ảnh kết quả
         public static Mat cropImage(Mat img, int x, int y, int xx, int yy, int scale = 0)
         {
             //Console.Write("Scale is : {0}\n", scale);
@@ -181,14 +210,22 @@ namespace container_capturer.scrip_lib
             return img_cropped;
         }
 
+        /// <summary>
+        /// Lưu ảnh và text(chứa thông số để cắt ảnh) vào đường dẫn
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="imageLink"></param>
+        /// <param name="textLink"></param>
+        /// <returns></returns>
         private static bool saveImageAndData(Mat img, string imageLink, string textLink)
         {
+            //Lưu ảnh
             if (false == Cv2.ImWrite(imageLink, img))
             {
                 return false;
             }
 
-            /*Save information of croped image*/
+            //Thông số cắt ảnh
             ix *= resize_scale;
             iy *= resize_scale;
             holdY *= resize_scale;
@@ -209,6 +246,14 @@ namespace container_capturer.scrip_lib
         }
 
         /* =================================== Public functions =================================== */
+
+        /// <summary>
+        /// Cắt ảnh theo chiều dọc
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="x"></param>
+        /// <param name="xx"></param>
+        /// <returns></returns>
         public static Mat cropingImageVerticly(Mat img, int x, int xx)
         {
             Mat img_cropped = img.Clone();
@@ -218,6 +263,13 @@ namespace container_capturer.scrip_lib
             }
             return img_cropped;
         }
+
+        /// <summary>
+        /// Ghép hai ảnh với nhau theo phương ngang
+        /// </summary>
+        /// <param name="imLeft"></param>
+        /// <param name="imRight"></param>
+        /// <returns></returns>
         public static Mat addTwoImages(Mat imLeft, Mat imRight)
         {
             if (imLeft.Size().Height != imRight.Size().Height)
@@ -231,6 +283,15 @@ namespace container_capturer.scrip_lib
             Cv2.HConcat(imLeft, imRight, addingResult);
             return addingResult;
         }
+
+        /// <summary>
+        /// Vẽ đường biểu thị ngăn cách cho ảnh
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="x"></param>
+        /// <param name="Length"></param>
+        /// <param name="thickness"></param>
+        /// <returns></returns>
         public static Mat drawingSeparateLine(Mat img, int x, int Length = 50, int thickness = 20)
         {
             Mat temp_img = img.Clone();
@@ -240,6 +301,13 @@ namespace container_capturer.scrip_lib
             return temp_img;
         }
 
+        /// <summary>
+        /// Vòng lặp vẽ ảnh, lưu ảnh và tự động ghép ảnh
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="resultLink"></param>
+        /// <param name="txtLink"></param>
+        /// <returns></returns>
         public static bool drawingLoop(Mat img, string resultLink, string txtLink)
         {
             const string settingWindown = "Setting image";
@@ -312,6 +380,13 @@ namespace container_capturer.scrip_lib
             return rep;
         }
 
+        /// <summary>
+        /// Vẽ đường thẳng
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="line"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
         public static Mat drawLine(Mat img, LineSegmentPolar line, Scalar color)
         {
             double rho = line.Rho,
@@ -331,6 +406,13 @@ namespace container_capturer.scrip_lib
             return img;
         }
 
+        /// <summary>
+        /// Vẽ tập hợp các điểm 
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="point"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
         public static Mat drawPoint(Mat img, OpenCvSharp.Point[] point, Scalar color)
         {
             for (int i = 0; i < point.Length; i++)
@@ -404,6 +486,11 @@ namespace container_capturer.scrip_lib
 
 
         /* =================================== Contructors =================================== */
+
+        /// <summary>
+        /// Thiết lập chiều cao container trong ảnh (pixels)
+        /// </summary>
+        /// <param name="height"></param>
         public static void setContainerHeight(int height)
         {
             container_heigh = Math.Abs(height);
@@ -431,7 +518,7 @@ namespace container_capturer.scrip_lib
         }
 
         /// <summary>
-        /// Hàm chuyển đổi đường thẳng
+        /// Hàm chuyển đổi đường thẳng (từ LineSegmentPoint sang LineSegmentPolar)
         /// </summary>
         /// <param name="line"></param>
         /// <returns></returns>
@@ -620,7 +707,7 @@ namespace container_capturer.scrip_lib
         {
             openCVResult result = new openCVResult(2);
 
-            // ------------------------------ Find populator factor of lines ---------------------------------
+            // ------------------------------ Tính toán độ phổ biến trung bình ------------------------------
             var popularFactor = 0;
             for (int i = 0; i < lines.Length; i++)
             {
@@ -631,7 +718,7 @@ namespace container_capturer.scrip_lib
             popularFactor /= lines.Length;
             //------------------------------------------------------------------------------------------------
 
-            // ------------------------------ Filtering by populator factor ----------------------------------
+            // ------------------------ Lọc các đường có độ phổ biến thấp hơn trung bình ---------------------
             LineSegmentPoint[] popularLines = new LineSegmentPoint[lines.Length];
             int popularScale = 4;
             int popularLinesCounter = 0;
@@ -646,7 +733,7 @@ namespace container_capturer.scrip_lib
             }
             //------------------------------------------------------------------------------------------------
 
-            // ------------------------------ Find 4 lines that shapes the container ----------------------------------
+            // ------------------------------ Find 4 lines that shapes the container -------------------------
             int count = 0;
             for (int i = 0; i < popularLinesCounter; i++)
             {
@@ -658,7 +745,7 @@ namespace container_capturer.scrip_lib
                     template.Rho = Math.Abs(mainLine.Rho);
                 }
 
-                //------------------------ find 2 verticle line --------------------------------------------
+                //--------------------------- find 2 verticle line --------------------------------------------
                 if ((template.Theta > h_angle + h_tollerance) || (template.Theta < h_angle - h_tollerance))
                 {
                     if (Math.Abs(template.Theta - v_angle) < v_tollerance)
@@ -675,6 +762,7 @@ namespace container_capturer.scrip_lib
                     continue;
                 }
                 //-------------------------------------------------------------------------------------------
+
                 for (int j = 0; j < lines.Length; j++)
                 {
                     LineSegmentPolar subLine = convertToLineSegmentPolar(lines[j]);
@@ -768,6 +856,7 @@ namespace container_capturer.scrip_lib
 
             temp = drawFunctions.cropImage(img, result.cropPoints[0].X, result.cropPoints[0].Y, result.cropPoints[1].X, result.cropPoints[1].Y, crop_scale);
             Cv2.ImWrite(imageLinks, temp);
+
             /*
             string name = "Result of " + imageLinks[i];
             Cv2.Resize(temp, temp, new OpenCvSharp.Size(0, 0), show_scale, show_scale);

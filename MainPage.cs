@@ -58,12 +58,15 @@ namespace container_capturer
             
         }
 
+        /// <summary>
+        /// Quản lí các thông tin trên bảng điều khiển
+        /// </summary>
         private void MainPageLoop()
         {
             while (true)
             {
                 try {
-                    /*Manager every things*/
+                    // Hiển thị cho nút lưu camera links
                     if (textBoxImgLink1.InvokeRequired && setLink1.InvokeRequired)
                     {
                         String txtTemp = "";
@@ -79,7 +82,7 @@ namespace container_capturer
                             else { setLink1.BackColor = Color.LightPink; }                        
                         }));
                     }
-
+                    // Hiển thị cho nút lưu camera links
                     if (textBoxImgLink2.InvokeRequired && setLink2.InvokeRequired)
                     {
                         String txtTemp = "";
@@ -95,7 +98,7 @@ namespace container_capturer
                             else { setLink2.BackColor = Color.LightPink; }
                         }));
                     }
-
+                    // Hiển thị cho nút lưu camera links
                     if (textBoxImgLink3.InvokeRequired && setLink3.InvokeRequired)
                     {
                         String txtTemp = "";
@@ -112,6 +115,7 @@ namespace container_capturer
                         }));
                     }
 
+                    // Ẩn các nút lệnh đến khi quá trình setup kết thúc
                     if (captureCommand.InvokeRequired && setCommand.InvokeRequired && AutoComand.InvokeRequired)
                     {
                         bool enable = false;
@@ -145,6 +149,7 @@ namespace container_capturer
                     MessageBox.Show(ex.Message);
                 }
 
+                // Hủy thread khi có lệnh
                 if (parametters.killThread)
                 {
                     Console.WriteLine("Say goodbye to {0}", Thread.CurrentThread.Name.ToString());
