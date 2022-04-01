@@ -229,20 +229,13 @@ namespace container_capturer
         /// <param name="e"></param>
         private void setFoder_Click(object sender, EventArgs e)
         {
-            if (parametters.getCamIndex() != 0)
+            if (imageFolderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
-                if (imageFolderBrowserDialog.ShowDialog() == DialogResult.OK)
-                {
-                    parametters.setImageFolder(imageFolderBrowserDialog.SelectedPath);
-                    imageFolder.Text = imageFolderBrowserDialog.SelectedPath;
-                    setLink1.Enabled = false;
-                    setLink2.Enabled = false;
-                    setLink3.Enabled = false;
-                }
-            }
-            else
-            {
-                MessageBox.Show("Set camera links first");
+                parametters.setImageFolder(imageFolderBrowserDialog.SelectedPath);
+                imageFolder.Text = imageFolderBrowserDialog.SelectedPath;
+                setLink1.Enabled = false;
+                setLink2.Enabled = false;
+                setLink3.Enabled = false;
             }
         }
 

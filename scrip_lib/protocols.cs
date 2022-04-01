@@ -306,6 +306,29 @@ internal class tcpClientWithHelios
 
         }
 
+        private static string messageDecoder(string message)
+        {
+            string command = "";
+            if (message.Contains(parametters.auto))
+            {
+                Console.WriteLine(message);
+                command = parametters.auto;
+                message = message.Remove(0, parametters.auto.Length+1);
+                Console.WriteLine(message);
+                string[]links = message.Split(';');
+                for(int i = 0; i < links.Length; i++)
+                {
+                    Console.WriteLine(links[i]);
+                    parametters.setCamLink(links[i], i);
+                }
+            }
+            else
+            {
+                command = message;
+            }
+            return command;
+        }
+
         /// <summary>
         /// Hàm được gọi mỗi khi có client kết nối: nhận và trả lời các messages
         /// </summary>
@@ -330,16 +353,20 @@ internal class tcpClientWithHelios
                 data.ReadTimeout = 20000; // Thời gian chờ client gửi message
                 data.Read(buffer, 0, buffer.Length);
                 string message = Encoding.Default.GetString(buffer).Trim((char)(00)); //chuyển các byte nhận được thành String
-                Console.WriteLine("Message from {0} in {1}: ", clientIp, clientPort);
-                switch (message) // Thiết lập lệnh theo message nhận được
+                Console.WriteLine("\nMessage from {0} in {1}: ", clientIp, clientPort);
+
+                string command = messageDecoder(message);
+                
+                Console.WriteLine(command);
+                switch (command) // Thiết lập lệnh theo message nhận được
                 {
                     case "capture": //Lệnh chụp ảnh
-                        if (parametters.setCommand(message))
+                        if (parametters.setCommand(command))
                         {
                             sendToClient("Command've been set", client);
-                            while (parametters.getCommand() == message) // Chờ lệnh hoàn thành
+                            while (parametters.getCommand() == command) // Chờ lệnh hoàn thành
                             {
-                                Console.WriteLine("Doing {0}", message);
+                                Console.WriteLine("Doing {0}", command);
                                 Thread.Sleep(200);
                             }
                             sendToClient("Command done", client);
@@ -396,12 +423,12 @@ internal class tcpClientWithHelios
                         }
                         break;
                     case "get": // lệnh lấy ảnh
-                        if (parametters.setCommand(message))
+                        if (parametters.setCommand(command))
                         {
                             //sendToClient("Command've been set", client);
-                            while (parametters.getCommand() == message)
+                            while (parametters.getCommand() == command)
                             {
-                                Console.WriteLine("Doing {0}", message);
+                                Console.WriteLine("Doing {0}", command);
                                 Thread.Sleep(200);
                             }
                             sendToClient(parametters.getCommandResult(), client);

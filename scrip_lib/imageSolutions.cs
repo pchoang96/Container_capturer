@@ -953,7 +953,7 @@ namespace container_capturer.scrip_lib
                 return false;
             }
 
-            for (int i = 0; i < cameraLink.Length; i++)
+            for (int i = 0; i < parametters.getCamIndex(); i++)
             {
                 if ("" == cameraLink[i] || "" == imageStorage[i])
                 {
@@ -991,14 +991,14 @@ namespace container_capturer.scrip_lib
             try
             {
                 // Kiểm tra điều kiện để chạy hàm: các đường dẫn phải tương ứng với nhau
-                if (inputDirectory.Length != outputDirectory.Length || outputDirectory.Length != txtDirectory.Length)
+                if (inputDirectory.Length != outputDirectory.Length || outputDirectory.Length != txtDirectory.Length )
                 {
                     Console.WriteLine("Directory arrays must have same size");
                     return null;
                 }
 
                 //Đọc file ảnh và file dữ liệu xử lí -> xử lí cắt/vẽ đường phân chia lên ảnh rời -> lưu ảnh rời đã qua xử lí vào output
-                for (int i = 0; i < inputDirectory.Length; i++)
+                for (int i = 0; i < parametters.getCamIndex(); i++)
                 {
                     if (("" == inputDirectory[i] || "" == outputDirectory[i] || "" == txtDirectory[i]))
                     {
@@ -1024,7 +1024,7 @@ namespace container_capturer.scrip_lib
 
                 // Ghép các ảnh ở output vào làm 1
                 Mat combineImg = new Mat();
-                for (int i = 0; i < outputDirectory.Length; i++)
+                for (int i = 0; i < parametters.getCamIndex(); i++)
                 {
                     if ("" == outputDirectory[i])
                     {
@@ -1067,7 +1067,7 @@ namespace container_capturer.scrip_lib
                 return false;
             }
 
-            for (int i = 0; i < inputDirectory.Length; i++)
+            for (int i = 0; i < parametters.getCamIndex(); i++)
             {
                 if (("" == inputDirectory[i] || "" == outputDirectory[i] || "" == txtDirectory[i]))
                 {

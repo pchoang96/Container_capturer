@@ -17,13 +17,20 @@ namespace container_capturer.scrip_lib
 
     static class parametters
     {
+        //command string name
+        public const string auto = "auto";
+        public const string set = "set";
+        public const string get = "get";
+        public const string capture = "capture";
+
         public static bool killThread = false;
         /* ----------------------------------- Image links parametter ----------------------------------- */
         /* rtsp://admin:Dung123@@188.88.76.231/Streaming/Channels/101
          * rtsp://admin:Dung123@@188.88.76.230/Streaming/Channels/101 */
         private static String[] camLink = { "", "", "" };
-        private static int camIndex = 0;
+        private static int camIndex = 3;
 
+        private static String mainFoderLink = "";
         private static String[] capImgLink = { "", "", "" };
         private static String[] outputImgLink = { "", "", "" };
         private static String[] txtLink = { "", "", "" };
@@ -45,8 +52,9 @@ namespace container_capturer.scrip_lib
         /// <param name="link"></param>
         /// <param name="pose"></param>
         /// <returns></returns>
-        public static bool setCamLink(String link, byte pose)
+        public static bool setCamLink(String link, int pose)
         {
+            
             if (link != "")
             {
                 camIndex = pose + 1;
@@ -55,6 +63,7 @@ namespace container_capturer.scrip_lib
             {
                 camIndex = pose;
             }
+            
             camLink[pose] = link;
             Console.WriteLine(link);
             Console.WriteLine(camIndex);
@@ -91,6 +100,7 @@ namespace container_capturer.scrip_lib
                 return false;
             }
 
+            mainFoderLink = link;
             /* Convert '\' symbol to '/' */
             char[]temp = link.ToCharArray();
             for(int i =0; i<link.Length; i++)
