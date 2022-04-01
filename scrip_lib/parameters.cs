@@ -162,9 +162,8 @@ namespace container_capturer.scrip_lib
         public static bool setCommand(String cmd)
         {
             if(command != "none" && cmd != "none")
-            {
                 return false;
-            }
+
             command = cmd;
             return true;
         }

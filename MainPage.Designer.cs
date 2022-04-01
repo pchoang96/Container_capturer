@@ -59,6 +59,7 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.ShowImageButton = new System.Windows.Forms.Button();
             this.imageFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.txtProcess = new System.Windows.Forms.RichTextBox();
             this.MainPanel.SuspendLayout();
             this.SelectLinksPanel.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -440,6 +441,7 @@
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.Controls.Add(this.ShowImageButton);
+            this.flowLayoutPanel1.Controls.Add(this.txtProcess);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 66);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(273, 372);
@@ -458,6 +460,14 @@
             // imageFolderBrowserDialog
             // 
             this.imageFolderBrowserDialog.SelectedPath = "D:\\SITCDV\\container_capturer\\images";
+            // 
+            // txtProcess
+            // 
+            this.txtProcess.Location = new System.Drawing.Point(3, 32);
+            this.txtProcess.Name = "txtProcess";
+            this.txtProcess.Size = new System.Drawing.Size(269, 340);
+            this.txtProcess.TabIndex = 1;
+            this.txtProcess.Text = "";
             // 
             // MainPage
             // 
@@ -522,6 +532,7 @@
         private System.Windows.Forms.Button changeButton;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Button ShowImageButton;
+        private System.Windows.Forms.RichTextBox txtProcess;
     }
 }
 

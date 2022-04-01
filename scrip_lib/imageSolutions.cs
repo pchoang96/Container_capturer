@@ -3,6 +3,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Windows.Forms;
 using System.Threading;
 
 namespace container_capturer.scrip_lib
@@ -51,13 +52,22 @@ namespace container_capturer.scrip_lib
             int counter = 0;
             while (!_capture.IsOpened() && counter < 5)
             {
+                counter++;
                 Console.WriteLine("connecting to {0}", linkCamera);
                 Thread.Sleep(500);
             }
-            if (counter > 10)
+
+            string ouput = "";
+
+            if (counter > 4)
             {
+                ouput = "Connect: " + linkCamera + " failed.";
+                ProcessOuput.AppendTextRichTextBox(ouput);
                 return false;
             }
+
+            ouput = "Connected: " + linkCamera + " success.";
+            ProcessOuput.AppendTextRichTextBox(ouput);
             return true;
         }
 
@@ -240,7 +250,7 @@ namespace container_capturer.scrip_lib
 
             if (w > 800)
             {
-                resize_scale = w/800;
+                resize_scale = w / 800;
                 Cv2.Resize(img_temp, img_temp, new OpenCvSharp.Size(img_temp.Width / resize_scale, img_temp.Height / resize_scale));
             }
 
@@ -250,7 +260,7 @@ namespace container_capturer.scrip_lib
             bool looping = true;
             while (looping)
             {
-                if(Cv2.GetWindowProperty(settingWindown, WindowPropertyFlags.Visible) < 1)
+                if (Cv2.GetWindowProperty(settingWindown, WindowPropertyFlags.Visible) < 1)
                 {
                     Console.WriteLine("Windown closed");
                     return false;
@@ -258,16 +268,23 @@ namespace container_capturer.scrip_lib
 
                 if (drawing)
                 {
-                    img_temp.CopyTo(temp);
-                    Cv2.ImShow("Setting image", drawRectangle(temp, ix, iy, holdX, holdY));
+                    try
+                    {
+                        img_temp.CopyTo(temp);
+                        Cv2.ImShow("Setting image", drawRectangle(temp, ix, iy, holdX, holdY));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }                    
                 }
                 int keyPress = Cv2.WaitKey(1) & 0xFF;
                 switch (keyPress)
                 {
-                    case 'c':
-                        temp = img_temp.Clone();
+                    case 'c':                        
+                        img_temp.CopyTo(temp);
                         temp = cropingImageVerticly(temp, ix, holdX);
-                        //Console.WriteLine("cx: {0} - choldX: {1}", ix, holdX);
+                        Console.WriteLine("cx: {0} - choldX: {1}", ix, holdX);
                         Cv2.ImShow("Setting image", temp);
                         break;
                     case 's':
@@ -290,7 +307,6 @@ namespace container_capturer.scrip_lib
                         }
                         break;
                 }
-                Thread.Sleep(100);
             }
             Cv2.DestroyWindow(settingWindown);
             return rep;
@@ -300,7 +316,7 @@ namespace container_capturer.scrip_lib
         {
             double rho = line.Rho,
                    theta = line.Theta;
-            //Console.WriteLine("Rho: {0} and Theta: {1}",rho,theta);
+            Console.WriteLine("Rho: {0} and Theta: {1}", rho, theta);
             int len = 5000;
             double a = Math.Cos(theta);
             double b = Math.Sin(theta);
@@ -388,10 +404,10 @@ namespace container_capturer.scrip_lib
 
 
         /* =================================== Contructors =================================== */
-        public static void setContainerHeight(int height) 
+        public static void setContainerHeight(int height)
         {
             container_heigh = Math.Abs(height);
-            Console.WriteLine("Container height chaned to {0}",container_heigh);
+            Console.WriteLine("Container height chaned to {0}", container_heigh);
         }
 
         /* =================================== Sub Functions =================================== */
@@ -585,7 +601,7 @@ namespace container_capturer.scrip_lib
                 }
                 else
                 {
-                    
+
                 }
                 contourIndex = hierarchyIndexes[contourIndex].Next;
             }
@@ -858,9 +874,7 @@ namespace container_capturer.scrip_lib
                 if (camRead.openCamera())
                 {
                     if (camRead.saveFrameTo(imageStorage[i], new OpenCvSharp.Size(0, 0)))
-                    {
                         Console.WriteLine("Save done at {0}", i);
-                    }
                     else
                     {
                         Console.WriteLine("Write failed at {0}", i);
@@ -927,7 +941,7 @@ namespace container_capturer.scrip_lib
                     {
                         continue;
                     }
-                    
+
                     //Quá trình ghép ảnh
                     if (0 == i)
                     {
@@ -979,7 +993,6 @@ namespace container_capturer.scrip_lib
             return true;
         }
 
-
         /// <summary>
         /// Thay đổi kích thước ảnh
         /// </summary>
@@ -987,7 +1000,33 @@ namespace container_capturer.scrip_lib
         /// <param name="width">The width to resize to.</param> thông số chiều dài (pixels)
         /// <param name="height">The height to resize to.</param> thông số chiều rộng (pixels)
         /// <returns>The resized image.</returns> trả về ảnh đã resize
-        private Bitmap ResizeImage(Image imgToResize, System.Drawing.Size size)
+        private Bitmap ResizeImage(Image image, int width, int height)
+        {
+            //var destRect = new Rectangle(0, 0, width, height);
+            //var destImage = new Bitmap(width, height);
+
+            //destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            //using (var graphics = Graphics.FromImage(destImage))
+            //{
+            //    graphics.CompositingMode = CompositingMode.SourceCopy;
+            //    graphics.CompositingQuality = CompositingQuality.HighQuality;
+            //    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            //    graphics.SmoothingMode = SmoothingMode.HighQuality;
+            //    graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            //    using (var wrapMode = new System.Drawing.Imaging.ImageAttributes())
+            //    {
+            //        wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+            //        graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+            //    }
+            //}
+
+            Bitmap resize = resizeImage(image, new System.Drawing.Size(width, height));
+            return resize;
+        }
+
+        private static Bitmap resizeImage(Image imgToResize, System.Drawing.Size size)
         {
             //Get the image current width  
             int sourceWidth = imgToResize.Width;
@@ -1026,9 +1065,11 @@ namespace container_capturer.scrip_lib
         {
             try
             {
+                int sWidth = 800;
+                int sHight = 600;
                 // Chuyển ảnh thành base64String
                 Bitmap bmp = new Bitmap(@linkOfResult);
-                bmp = ResizeImage(bmp, new System.Drawing.Size(800,600));
+                bmp = ResizeImage(bmp, sWidth, sHight);
 
                 MemoryStream ms = new MemoryStream();
                 bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
@@ -1074,7 +1115,7 @@ namespace container_capturer.scrip_lib
                                             parametters.getTxtLink(),
                                             parametters.getResultLink()
                                          );
-                        opencvProcess.fullProcess(parametters.getResultLink());
+                        //opencvProcess.fullProcess(parametters.getResultLink());
                         parametters.setCommand("none");
                         break;
                     case "set": // lệnh cài đặt thông số

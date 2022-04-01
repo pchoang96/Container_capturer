@@ -15,6 +15,7 @@ using System.Drawing;
 using System.Collections.Generic;
 
 using Newtonsoft.Json;
+using System.Windows;
 
 namespace container_capturer.scrip_lib
 {
@@ -292,9 +293,17 @@ internal class tcpClientWithHelios
         /// </summary>
         public void server_start()
         {
-            myServer.Start();
-            Console.Write("Open TCP gate");
-            myServer.BeginAcceptTcpClient(new AsyncCallback(handle_connection), myServer);
+            try
+            {
+                myServer.Start();
+                Console.Write("Open TCP gate");
+                myServer.BeginAcceptTcpClient(new AsyncCallback(handle_connection), myServer);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("#Không thể kết nối tới SERVER. Vui lòng kiểm tra IP hoặc PORT.");
+            }
+
         }
 
         /// <summary>
@@ -309,7 +318,7 @@ internal class tcpClientWithHelios
             string clientIp = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
             string clientPort = ((IPEndPoint)client.Client.RemoteEndPoint).Port.ToString();
             try
-            {   
+            {
                 //while (client.Connected)
                 //{
                 //sendToClient("Still there?\n",client);
@@ -319,7 +328,7 @@ internal class tcpClientWithHelios
                 byte[] buffer = new byte[512];
                 NetworkStream data = client.GetStream(); // Stream quản lí các tác vụ đọc, ghi
                 data.ReadTimeout = 20000; // Thời gian chờ client gửi message
-                data.Read(buffer, 0, buffer.Length); 
+                data.Read(buffer, 0, buffer.Length);
                 string message = Encoding.Default.GetString(buffer).Trim((char)(00)); //chuyển các byte nhận được thành String
                 Console.WriteLine("Message from {0} in {1}: ", clientIp, clientPort);
                 switch (message) // Thiết lập lệnh theo message nhận được
@@ -337,7 +346,7 @@ internal class tcpClientWithHelios
                         }
                         else
                         {
-                            sendToClient("Setting command failed", client);
+                            sendToClient("#Server đang thực hiện lệnh chụp ảnh do Client khác gửi lên. Vui lòng thực hiện lại sau khi Server thực hiện xong.", client);
                             break;
                         }
                         break;
@@ -353,7 +362,7 @@ internal class tcpClientWithHelios
                         }
                         else
                         {
-                            sendToClient("Setting command failed", client);
+                            sendToClient("#Server đang thực hiện lệnh chụp ảnh do Client khác gửi lên. Vui lòng thực hiện lại sau khi Server thực hiện xong.", client);
                             break;
                         }
 
@@ -367,7 +376,7 @@ internal class tcpClientWithHelios
                         }
                         else
                         {
-                            sendToClient("Setting command failed", client);
+                            sendToClient("#Server đang thực hiện lệnh chụp ảnh do Client khác gửi lên. Vui lòng thực hiện lại sau khi Server thực hiện xong.", client);
                             break;
                         }
 
@@ -382,7 +391,7 @@ internal class tcpClientWithHelios
                         }
                         else
                         {
-                            sendToClient("Setting command failed", client);
+                            sendToClient("#Server đang thực hiện lệnh chụp ảnh do Client khác gửi lên. Vui lòng thực hiện lại sau khi Server thực hiện xong.", client);
                             break;
                         }
                         break;
@@ -400,13 +409,13 @@ internal class tcpClientWithHelios
                         }
                         else
                         {
-                            sendToClient("Setting command failed", client);
+                            sendToClient("#Server đang thực hiện lệnh chụp ảnh do Client khác gửi lên. Vui lòng thực hiện lại sau khi Server thực hiện xong.", client);
                             break;
                         }
                         break;
                     default:
                         Console.WriteLine("Invalid command: {0}", message);
-                        sendToClient(string.Format("\nInvalid command: {0}", message), client);
+                        sendToClient("#Thông số chạy trên SERVER chưa được cài đặt hoặc thông số chưa đúng. Vui lòng liền hệ với IT để kiểm tra.", client);
                         break;
                 }
                 //}
@@ -417,6 +426,10 @@ internal class tcpClientWithHelios
             {
                 Console.WriteLine("Tcp sever had been failed: {0}", ex.Message);
                 Console.WriteLine("Client {0} in {1} 've been in our memories", clientIp, clientPort);
+                string ms = "";
+                ms += "#Tcp sever had been failed: " + ex.Message + Environment.NewLine;
+                ms += "Client " + clientIp + " in " + clientPort + " 've been in our memories";
+                sendToClient(ms, client);
                 client.Close();
             }
         }
@@ -428,9 +441,10 @@ internal class tcpClientWithHelios
         /// <param name="chanel"></param>
         private static void sendToClient(string message, TcpClient chanel)
         {
-            byte [] buffer = new byte[message.Length];
+            //byte[] buffer = new byte[message.Length];            
             NetworkStream data = chanel.GetStream();
-            buffer = Encoding.Default.GetBytes(message);
+            //buffer = Encoding.Default.GetBytes(message);
+            byte[] buffer = UTF8Encoding.UTF8.GetBytes(message);
             data.Write(buffer, 0, buffer.Length);
         }
 
@@ -452,13 +466,16 @@ internal class tcpClientWithHelios
         /// </summary>
         /// <param name="message"></param>
         /// <param name="chanel"></param>
-        private static void sendToClient(byte[]message, TcpClient chanel)
+        private static void sendToClient(byte[] message, TcpClient chanel)
         {
-            if(message != null) {
+            if (message != null)
+            {
                 Console.WriteLine(message.Length);
                 NetworkStream data = chanel.GetStream();
-                for (int i = 0; i < message.Length; i++) {
-                    if (data.CanWrite) {
+                for (int i = 0; i < message.Length; i++)
+                {
+                    if (data.CanWrite)
+                    {
                         data.WriteByte(message[i]);
                     }
                 }

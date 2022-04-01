@@ -15,25 +15,11 @@ namespace container_capturer
         static int Main()
         {
             try
-            {
-                //Tạo thread xử lí ảnh
-                autoFunctions auto = new autoFunctions();
-                Thread autoControlThread = new Thread(auto.serviceLoop);
-                autoControlThread.Name = "Auto control thread";
-                autoControlThread.IsBackground = true;
-                autoControlThread.Start();
-
-                //Tạo thread nhận lệnh tcp
-                tcpServer myTcp = new tcpServer();
-                Thread tcpIpControlThread = new Thread(myTcp.protocolLoop);
-                tcpIpControlThread.Name = "TCP control thread";
-                tcpIpControlThread.IsBackground = true;
-                tcpIpControlThread.Start();
-
+            {                
                 //Thread của winform
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new MainPage());
+                Application.Run(new MainPage());               
             }
             catch (Exception ex)
             {

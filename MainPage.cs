@@ -20,7 +20,7 @@ namespace container_capturer
 
             // Tạo thread của winform
             MainPageThread = new Thread(MainPageLoop);
-            MainPageThread.Name = "MainPage thread";
+            MainPageThread.Name = "MainPageThread";
             MainPageThread.IsBackground = true;
             MainPageThread.Start();
 
@@ -38,7 +38,19 @@ namespace container_capturer
 
         private void MainPage_Load(object sender, EventArgs e)
         {
+            //Tạo thread xử lí ảnh
+            autoFunctions auto = new autoFunctions();
+            Thread autoControlThread = new Thread(auto.serviceLoop);
+            autoControlThread.Name = "AutoControlThread";
+            autoControlThread.IsBackground = true;
+            autoControlThread.Start();
 
+            //Tạo thread nhận lệnh tcp
+            tcpServer myTcp = new tcpServer();
+            Thread tcpIpControlThread = new Thread(myTcp.protocolLoop);
+            tcpIpControlThread.Name = "TCPControlThread";
+            tcpIpControlThread.IsBackground = true;
+            tcpIpControlThread.Start();
         }
 
         private void MainPage_Leave(object sender, EventArgs e)
@@ -173,6 +185,7 @@ namespace container_capturer
 
             if (textBoxImgLink2.Text == "")
             {
+
                 //Cho phép nhập dữ liệu vào hàng 1 (nếu hàng 2 trống)
                 textBoxImgLink1.ReadOnly = false;
                 textBoxImgLink2.ReadOnly = true;
@@ -211,20 +224,10 @@ namespace container_capturer
         /// <param name="e"></param>
         private void setFoder_Click(object sender, EventArgs e)
         {
-            if(parametters.getCamIndex() != 0)
+            if (imageFolderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
-                if (imageFolderBrowserDialog.ShowDialog() == DialogResult.OK)
-                {
-                    parametters.setImageFolder(imageFolderBrowserDialog.SelectedPath);
-                    imageFolder.Text = imageFolderBrowserDialog.SelectedPath;
-                    setLink1.Enabled = false;
-                    setLink2.Enabled = false;
-                    setLink3.Enabled = false;
-                }
-            }
-            else
-            {
-                MessageBox.Show("Set camera links first");
+                parametters.setImageFolder(imageFolderBrowserDialog.SelectedPath);
+                imageFolder.Text = imageFolderBrowserDialog.SelectedPath;
             }
         }
 
@@ -235,10 +238,8 @@ namespace container_capturer
         /// <param name="e"></param>
         private void captureCommand_Click(object sender, EventArgs e)
         {
-            if( parametters.setCommand("capture") == false)
-            {
-                MessageBox.Show("Setting command failed");
-            }
+            if (parametters.setCommand("capture") == false)
+                MessageBox.Show("Setting command failed");            
         }
 
         /// <summary>
