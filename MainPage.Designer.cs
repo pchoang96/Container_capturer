@@ -58,8 +58,8 @@
             this.changeButton = new System.Windows.Forms.Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.ShowImageButton = new System.Windows.Forms.Button();
-            this.imageFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.txtProcess = new System.Windows.Forms.RichTextBox();
+            this.imageFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.MainPanel.SuspendLayout();
             this.SelectLinksPanel.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -457,10 +457,6 @@
             this.ShowImageButton.UseVisualStyleBackColor = true;
             this.ShowImageButton.Click += new System.EventHandler(this.ShowImageButton_Click);
             // 
-            // imageFolderBrowserDialog
-            // 
-            this.imageFolderBrowserDialog.SelectedPath = "D:\\SITCDV\\container_capturer\\images";
-            // 
             // txtProcess
             // 
             this.txtProcess.Location = new System.Drawing.Point(3, 32);
@@ -468,6 +464,10 @@
             this.txtProcess.Size = new System.Drawing.Size(269, 340);
             this.txtProcess.TabIndex = 1;
             this.txtProcess.Text = "";
+            // 
+            // imageFolderBrowserDialog
+            // 
+            this.imageFolderBrowserDialog.SelectedPath = "D:\\SITCDV\\container_capturer\\images";
             // 
             // MainPage
             // 
