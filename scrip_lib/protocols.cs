@@ -306,20 +306,53 @@ internal class tcpClientWithHelios
 
         }
 
+        /// <summary>
+        /// Lấy đường dẫn đến camera từ string, lưu vào list và return;
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private static List<string> getLinkCameraFromServer(string id)
+        {
+            List<string> linkCamera = new List<string>();
+
+            /*
+                 Lấy các đường linkCamera từ server và trả về vào list "linkCamera" này
+            */
+
+            // Code ví dụ:
+            string[] links = id.Split(';');
+            foreach (string link in links)
+            {
+                Console.WriteLine(link);
+                linkCamera.Add(link);
+            }
+
+            return linkCamera;
+        }
+
+        /// <summary>
+        /// Lọc các thành phần của lệnh gửi đến:
+        ///     Lệnh "auto" : tên lệnh và đường dẫn đến camera
+        ///     Lệnh khác   : tên lệnh
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         private static string messageDecoder(string message)
         {
             string command = "";
-            if (message.Contains(parametters.auto))
+            if (message.Contains(parametters.auto)) // kiểm tra chuỗi "auto" có trong tin nhắn không (phát hiện lệnh auto)
             {
-                Console.WriteLine(message);
-                command = parametters.auto;
-                message = message.Remove(0, parametters.auto.Length+1);
-                Console.WriteLine(message);
-                string[]links = message.Split(';');
-                for(int i = 0; i < links.Length; i++)
+                command = parametters.auto; //gán lệnh là auto
+                message = message.Remove(0, parametters.auto.Length+1); // xóa chuỗi "auto," có trong tin nhắn ( "auto,128" -> "128")
+                string idBarie = message; //còn lại là string chứa id barrier
+
+                List<string> linkCamera = getLinkCameraFromServer(idBarie); // hàm lấy link camera
+
+                int i = 0;
+                foreach (string linkCameraItem in linkCamera)
                 {
-                    Console.WriteLine(links[i]);
-                    parametters.setCamLink(links[i], i);
+                    parametters.setCamLink(linkCameraItem, i);
+                    i++;
                 }
             }
             else

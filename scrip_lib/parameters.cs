@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 /// </summary>
 namespace container_capturer.scrip_lib
 {
-    public struct command
+    public struct Command
     {
         public string name;
         public IList<string> args;
@@ -119,7 +119,7 @@ namespace container_capturer.scrip_lib
                 txtLink[i]       = link + txtSubLink[0]      + (i + 1).ToString() + txtSubLink[1];
                 //Console.WriteLine(capImgLink[i]);
                 //Console.WriteLine(outputImgLink[i]);
-                //Console.WriteLine(txtLink[i]);;
+                //Console.WriteLine(txtLink[i]);
                 //Console.WriteLine();
             }
 
