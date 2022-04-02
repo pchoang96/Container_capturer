@@ -997,7 +997,7 @@ namespace container_capturer.scrip_lib
                     return null;
                 }
 
-                //Đọc file ảnh và file dữ liệu xử lí -> xử lí cắt/vẽ đường phân chia lên ảnh rời -> lưu ảnh rời đã qua xử lí vào output
+                #region Đọc file ảnh và file dữ liệu xử lí -> xử lí cắt/vẽ đường phân chia lên ảnh rời -> lưu ảnh rời đã qua xử lí vào output
                 for (int i = 0; i < parametters.getCamIndex(); i++)
                 {
                     if (("" == inputDirectory[i] || "" == outputDirectory[i] || "" == txtDirectory[i]))
@@ -1010,10 +1010,14 @@ namespace container_capturer.scrip_lib
                     decoder(txtDirectory[i], coefficient);
                     Mat img = Cv2.ImRead(inputDirectory[i]);
 
-                    // Xử lí cắt/vẽ đường phân chia lên ảnh rời
-                    //img = drawer.cropingImageVerticly(img,coefficient[2], coefficient[3]);
+                    #region Xử lí cắt/vẽ đường phân chia lên ảnh rời
+                    // cắt ảnh theo thông số chiều ngang
+                    img = drawFunctions.cropingImageVerticly(img,coefficient[2], coefficient[3]); 
+
+                    // vẽ đường chia ảnh theo thông số chiều ngang
                     img = drawFunctions.drawingSeparateLine(img, coefficient[2], 50, 10);
                     img = drawFunctions.drawingSeparateLine(img, coefficient[3], 50, 10);
+                    #endregion
 
                     //cài đặt thông số chiều cao của container
                     opencvProcess.setContainerHeight(coefficient[0] - coefficient[1]);
@@ -1021,8 +1025,9 @@ namespace container_capturer.scrip_lib
                     // lưu ảnh rời đã qua xử lí vào output
                     Cv2.ImWrite(outputDirectory[i], img);
                 }
+                #endregion
 
-                // Ghép các ảnh ở output vào làm 1
+                #region Ghép các ảnh ở output vào làm 1
                 Mat combineImg = new Mat();
                 for (int i = 0; i < parametters.getCamIndex(); i++)
                 {
@@ -1041,6 +1046,8 @@ namespace container_capturer.scrip_lib
                         combineImg = drawFunctions.addTwoImages(combineImg, Cv2.ImRead(outputDirectory[i])); // xử lí các ảnh kế tiếp
                     }
                 }
+                #endregion
+
                 Cv2.ImWrite(resultDirectory, combineImg); //lưu ảnh vào vị trí đã chọn
                 return combineImg;
             }

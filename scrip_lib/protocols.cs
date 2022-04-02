@@ -7,14 +7,12 @@ using Helios.Topology;
 using Helios.Reactor;
 */
 using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Drawing;
-using System.Collections.Generic;
-
-using Newtonsoft.Json;
 using System.Windows;
 
 namespace container_capturer.scrip_lib
@@ -320,12 +318,13 @@ internal class tcpClientWithHelios
             */
 
             // Code ví dụ:
+            /*
             string[] links = id.Split(';');
             foreach (string link in links)
             {
                 Console.WriteLine(link);
                 linkCamera.Add(link);
-            }
+            }*/
 
             return linkCamera;
         }
@@ -343,17 +342,19 @@ internal class tcpClientWithHelios
             if (message.Contains(parametters.auto)) // kiểm tra chuỗi "auto" có trong tin nhắn không (phát hiện lệnh auto)
             {
                 command = parametters.auto; //gán lệnh là auto
-                message = message.Remove(0, parametters.auto.Length+1); // xóa chuỗi "auto," có trong tin nhắn ( "auto,128" -> "128")
+                message = message.Remove(0, parametters.auto.Length + 1); // xóa chuỗi "auto," có trong tin nhắn ( "auto,128" -> "128")
                 string idBarie = message; //còn lại là string chứa id barrier
 
                 List<string> linkCamera = getLinkCameraFromServer(idBarie); // hàm lấy link camera
 
+                //-------- lưu link camera vào bộ nhớ --------
                 int i = 0;
-                foreach (string linkCameraItem in linkCamera)
+                foreach (string linkCameraItem in linkCamera)   
                 {
                     parametters.setCamLink(linkCameraItem, i);
                     i++;
                 }
+                //--------------------------------------------
             }
             else
             {
@@ -389,7 +390,7 @@ internal class tcpClientWithHelios
                 Console.WriteLine("\nMessage from {0} in {1}: ", clientIp, clientPort);
 
                 string command = messageDecoder(message);
-                
+
                 Console.WriteLine(command);
                 switch (command) // Thiết lập lệnh theo message nhận được
                 {
